@@ -9,11 +9,11 @@ import (
 )
 
 type Handler struct {
-	initialize func(ctx *FCContext) error
-	invoke     func(ctx *FCContext, event []byte) ([]byte, error)
-	httpInvoke func(ctx *FCContext, w http.ResponseWriter)
-	prefreeze  func(ctx *FCContext) error
-	prestop    func(ctx *FCContext) error
+	Initialize func(ctx *FCContext) error
+	Invoke     func(ctx *FCContext, event []byte) ([]byte, error)
+	HttpInvoke func(ctx *FCContext, w http.ResponseWriter)
+	Prefreeze  func(ctx *FCContext) error
+	Prestop    func(ctx *FCContext) error
 }
 
 var handler *Handler
@@ -30,11 +30,11 @@ func initializeHandler(w http.ResponseWriter, req *http.Request) {
 		fmt.Println(fmt.Sprintf(fcInitializeLogEndPrefix, fcCtx.RequestID))
 	}()
 
-	if handler.initialize == nil {
+	if handler.Initialize == nil {
 		panic("This function doesn't have initialize handler.")
 	}
 
-	err := handler.initialize(fcCtx)
+	err := handler.Initialize(fcCtx)
 	if err != nil {
 		panic(err)
 	}
@@ -59,11 +59,11 @@ func invokeHandler(w http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	if handler.invoke == nil {
+	if handler.Invoke == nil {
 		panic("This function doesn't have invoke handler.")
 	}
 
-	resp, err := handler.invoke(fcCtx, event)
+	resp, err := handler.Invoke(fcCtx, event)
 	if err != nil {
 		panic(err)
 	}
@@ -83,11 +83,11 @@ func httpInvokeHandler(w http.ResponseWriter, req *http.Request) {
 		fmt.Println(fmt.Sprintf(fcInvokeLogEndPrefix, fcCtx.RequestID))
 	}()
 
-	if handler.httpInvoke == nil {
+	if handler.HttpInvoke == nil {
 		panic("This function doesn't have http invoke handler.")
 	}
 
-	handler.httpInvoke(fcCtx, w)
+	handler.HttpInvoke(fcCtx, w)
 }
 
 func prefreezeHandler(w http.ResponseWriter, req *http.Request) {
@@ -102,11 +102,11 @@ func prefreezeHandler(w http.ResponseWriter, req *http.Request) {
 		fmt.Println(fmt.Sprintf(fcPreFreezeLogEndPrefix, fcCtx.RequestID))
 	}()
 
-	if handler.prefreeze == nil {
+	if handler.Prefreeze == nil {
 		panic("This function doesn't have prefreeze handler.")
 	}
 
-	err := handler.prefreeze(fcCtx)
+	err := handler.Prefreeze(fcCtx)
 	if err != nil {
 		panic(err)
 	}
@@ -126,11 +126,11 @@ func prestopHandler(w http.ResponseWriter, req *http.Request) {
 		fmt.Println(fmt.Sprintf(fcPreStopEndPrefix, fcCtx.RequestID))
 	}()
 
-	if handler.prestop == nil {
+	if handler.Prestop == nil {
 		panic("This function doesn't have prestop handler.")
 	}
 
-	err := handler.prestop(fcCtx)
+	err := handler.Prestop(fcCtx)
 	if err != nil {
 		panic(err)
 	}
