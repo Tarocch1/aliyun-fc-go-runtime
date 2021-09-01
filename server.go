@@ -11,7 +11,7 @@ import (
 type Handler struct {
 	Initialize func(ctx *FCContext) error
 	Invoke     func(ctx *FCContext, event []byte) ([]byte, error)
-	HttpInvoke func(ctx *FCContext, w http.ResponseWriter)
+	HttpInvoke func(ctx *FCContext, w http.ResponseWriter) error
 	Prefreeze  func(ctx *FCContext) error
 	Prestop    func(ctx *FCContext) error
 }
@@ -87,7 +87,10 @@ func httpInvokeHandler(w http.ResponseWriter, req *http.Request) {
 		panic("This function doesn't have http invoke handler.")
 	}
 
-	handler.HttpInvoke(fcCtx, w)
+	err := handler.HttpInvoke(fcCtx, w)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func prefreezeHandler(w http.ResponseWriter, req *http.Request) {
