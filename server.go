@@ -23,9 +23,7 @@ func initializeHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(fmt.Sprintf(fcInitializeLogStartPrefix, fcCtx.RequestID))
 	defer func() {
 		if r := recover(); r != nil {
-			w.Header().Set(fcStatus, "404")
-			w.WriteHeader(404)
-			w.Write([]byte(fmt.Sprintf("Error: %+v\nStack: %s", r, string(debug.Stack()))))
+			handleRec(r, w)
 		}
 		fmt.Println(fmt.Sprintf(fcInitializeLogEndPrefix, fcCtx.RequestID))
 	}()
@@ -47,9 +45,7 @@ func invokeHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(fmt.Sprintf(fcInvokeLogStartPrefix, fcCtx.RequestID))
 	defer func() {
 		if r := recover(); r != nil {
-			w.Header().Set(fcStatus, "404")
-			w.WriteHeader(404)
-			w.Write([]byte(fmt.Sprintf("Error: %+v\nStack: %s", r, string(debug.Stack()))))
+			handleRec(r, w)
 		}
 		fmt.Println(fmt.Sprintf(fcInvokeLogEndPrefix, fcCtx.RequestID))
 	}()
@@ -76,9 +72,7 @@ func httpInvokeHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(fmt.Sprintf(fcInvokeLogStartPrefix, fcCtx.RequestID))
 	defer func() {
 		if r := recover(); r != nil {
-			w.Header().Set(fcStatus, "404")
-			w.WriteHeader(404)
-			w.Write([]byte(fmt.Sprintf("Error: %+v\nStack: %s", r, string(debug.Stack()))))
+			handleRec(r, w)
 		}
 		fmt.Println(fmt.Sprintf(fcInvokeLogEndPrefix, fcCtx.RequestID))
 	}()
@@ -98,9 +92,7 @@ func prefreezeHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(fmt.Sprintf(fcPreFreezeLogStartPrefix, fcCtx.RequestID))
 	defer func() {
 		if r := recover(); r != nil {
-			w.Header().Set(fcStatus, "404")
-			w.WriteHeader(404)
-			w.Write([]byte(fmt.Sprintf("Error: %+v\nStack: %s", r, string(debug.Stack()))))
+			handleRec(r, w)
 		}
 		fmt.Println(fmt.Sprintf(fcPreFreezeLogEndPrefix, fcCtx.RequestID))
 	}()
@@ -122,9 +114,7 @@ func prestopHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(fmt.Sprintf(fcPreStopStartPrefix, fcCtx.RequestID))
 	defer func() {
 		if r := recover(); r != nil {
-			w.Header().Set(fcStatus, "404")
-			w.WriteHeader(404)
-			w.Write([]byte(fmt.Sprintf("Error: %+v\nStack: %s", r, string(debug.Stack()))))
+			handleRec(r, w)
 		}
 		fmt.Println(fmt.Sprintf(fcPreStopEndPrefix, fcCtx.RequestID))
 	}()
@@ -144,9 +134,7 @@ func prestopHandler(w http.ResponseWriter, req *http.Request) {
 func handle(w http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if r := recover(); r != nil {
-			w.Header().Set(fcStatus, "404")
-			w.WriteHeader(404)
-			w.Write([]byte(fmt.Sprintf("Error: %+v\nStack: %s", r, string(debug.Stack()))))
+			handleRec(r, w)
 		}
 	}()
 	controlPath := req.Header.Get(fcControlPath)
@@ -164,6 +152,14 @@ func handle(w http.ResponseWriter, req *http.Request) {
 	default:
 		panic("Unknown control path.")
 	}
+}
+
+func handleRec(r interface{}, w http.ResponseWriter) {
+	errorInfo := fmt.Sprintf("Error: %+v\nStack: %s", r, string(debug.Stack()))
+	fmt.Println(errorInfo)
+	w.Header().Set(fcStatus, "404")
+	w.WriteHeader(404)
+	w.Write([]byte(errorInfo))
 }
 
 func Start(h *Handler) {
