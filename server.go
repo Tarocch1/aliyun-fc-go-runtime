@@ -1,6 +1,7 @@
 package aliyunfcgoruntime
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -155,11 +156,14 @@ func handle(w http.ResponseWriter, req *http.Request) {
 }
 
 func handleRec(r interface{}, w http.ResponseWriter) {
-	errorInfo := fmt.Sprintf("Error: %+v\nStack: %s", r, string(debug.Stack()))
-	fmt.Println(errorInfo)
+	errorInfo, _ := json.Marshal(map[string]string{
+		"errMsg":   fmt.Sprintf("%+v", r),
+		"errStack": string(debug.Stack()),
+	})
+	fmt.Println(string(errorInfo))
 	w.Header().Set(fcStatus, "404")
 	w.WriteHeader(404)
-	w.Write([]byte(errorInfo))
+	w.Write(errorInfo)
 }
 
 func Start(h *Handler) {
