@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"runtime/debug"
 )
 
 type Handler struct {
@@ -157,8 +156,7 @@ func handle(w http.ResponseWriter, req *http.Request) {
 
 func handleRec(r interface{}, w http.ResponseWriter) {
 	errorInfo, _ := json.Marshal(map[string]string{
-		"errMsg":   fmt.Sprintf("%+v", r),
-		"errStack": string(debug.Stack()),
+		"errMsg": fmt.Sprintf("%+v", r),
 	})
 	fmt.Println(string(errorInfo))
 	w.Header().Set(fcStatus, "404")
