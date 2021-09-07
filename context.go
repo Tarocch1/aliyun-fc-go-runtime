@@ -1,6 +1,8 @@
 package aliyunfcgoruntime
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -37,6 +39,14 @@ type FCContext struct {
 	AccountID   string
 	RetryCount  int
 	Req         *http.Request
+	Log         func(map[string]interface{})
+}
+
+func log(data map[string]interface{}) {
+	j, _ := json.Marshal(data)
+	if j != nil {
+		fmt.Println(string(j))
+	}
 }
 
 func NewFromContext(req *http.Request) *FCContext {
@@ -86,6 +96,7 @@ func NewFromContext(req *http.Request) *FCContext {
 		AccountID:  req.Header.Get(fcAccountID),
 		RetryCount: retryCount,
 		Req:        req,
+		Log:        log,
 	}
 	return ctx
 }
